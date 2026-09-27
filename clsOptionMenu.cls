@@ -29,7 +29,7 @@ Private m_CanbeOutByMainForm As Boolean
 'rel:是否使用相对坐标,
 'usettk:是否使用TTK主题扩展(如果使用TTK，则VB的组合框对应到TTK的组合框，不会生出这个控件)
 Public Sub toString(ByRef sOut As cStrBuilder, ByRef sCmd As cStrBuilder, ByRef sI18n As cStrBuilder, ByVal rel As Boolean, ByVal usettk As Boolean)
-    Dim s() As String, I As Long, sList As String, extra As String, sConfig As String
+    Dim s() As String, i As Long, sList As String, extra As String, sConfig As String
     
     If Len(m_Base("variable")) = 0 Then
         MsgBox L_F("l_msgMusthasVar", "'variable' is obligatory for OptionMenu(ComboBox), will not generate code for OptionMenu({0}) now.", m_Base.Name), vbInformation
@@ -37,8 +37,8 @@ Public Sub toString(ByRef sOut As cStrBuilder, ByRef sCmd As cStrBuilder, ByRef 
     End If
     
     '生成列表
-    For I = 0 To UBound(m_List)
-        sList = sList & U(m_List(I)) & ","
+    For i = 0 To UBound(m_List)
+        sList = sList & U(m_List(i)) & ","
     Next
     sList = "(" & sList & ")"
     
@@ -62,14 +62,14 @@ Public Sub toString(ByRef sOut As cStrBuilder, ByRef sCmd As cStrBuilder, ByRef 
     
     If Len(m_Base("bindcommand")) Then                                          '有需要使用bind语句绑定的其他事件处理
         s = Split(m_Base("bindcommand"), ",")
-        For I = 0 To UBound(s)
-            s(I) = Trim(s(I))
-            If s(I) = "<Change>" Then '专门处理自定义的这个事件，用控件变量监视器模拟
+        For i = 0 To UBound(s)
+            s(i) = Trim(s(i))
+            If s(i) = "<Change>" Then '专门处理自定义的这个事件，用控件变量监视器模拟
                 sOut.Append "        self." & m_Base("variable") & ".trace('w', self." & m_Base.Name & "_Change)"
                 sCmd.Append m_Base.CreateFuncDefOOP(m_Base.Name & "_Change", "*args")
-            ElseIf Left(s(I), 1) = "<" And Right(s(I), 1) = ">" Then
-                sOut.Append "        self." & m_Base.Name & ".bind('" & s(I) & "', self." & m_Base.Name & "_" & Replace(Mid(s(I), 2, Len(s(I)) - 2), "-", "_") & ")"
-                sCmd.Append m_Base.CreateFuncDefOOP(m_Base.Name & "_" & Replace(Mid(s(I), 2, Len(s(I)) - 2), "-", "_"), "event")
+            ElseIf Left(s(i), 1) = "<" And Right(s(i), 1) = ">" Then
+                sOut.Append "        self." & m_Base.Name & ".bind('" & s(i) & "', self." & m_Base.Name & "_" & Replace(Mid(s(i), 2, Len(s(i)) - 2), "-", "_") & ")"
+                sCmd.Append m_Base.CreateFuncDefOOP(m_Base.Name & "_" & Replace(Mid(s(i), 2, Len(s(i)) - 2), "-", "_"), "event")
             End If
         Next
     End If
@@ -79,7 +79,7 @@ End Sub
 'useTkFonts: 是否使用tkinter命名字体代替特定字体名（兼容性更强）
 'dMethods：控件名为键，使用逗号分隔的控件事件处理函数名字符串
 Public Sub InitConfig(o As Object, parentWidth As Long, parentHeight As Long, useTkFonts As Boolean, dMethods As Dictionary)
-    Dim I As Long, oList As Object, sList As String, numList As Long, fontName As String, defaultFont As String
+    Dim i As Long, oList As Object, sList As String, numList As Long, fontName As String, defaultFont As String
     Dim s As String, sa() As String, idx As Long
     
     m_Base.SetVbWidgetInstance o
@@ -89,7 +89,7 @@ Public Sub InitConfig(o As Object, parentWidth As Long, parentHeight As Long, us
         fontName = "'TkDefaultFont'"
         defaultFont = "('TkDefaultFont',9)"
     Else
-        fontName = U(CStr(o.Properties("Font")("Name")))
+        fontName = U(GetEnglishFontName(CStr(o.Properties("Font")("Name"))))
         defaultFont = "(" & U(GetDefaultFontName()) & ",9)"
     End If
     
@@ -97,13 +97,13 @@ Public Sub InitConfig(o As Object, parentWidth As Long, parentHeight As Long, us
     Set oList = o.Properties("List")
     Erase m_List
     numList = 0
-    I = IIf(o.Properties("Style") = 2, 1, 0)         ' 2-Dropdown List时第一项IndexedValue为控件名，所以从第二项开始
+    i = IIf(o.Properties("Style") = 2, 1, 0)         ' 2-Dropdown List时第一项IndexedValue为控件名，所以从第二项开始
     Do While True
-        If oList.IndexedValue(I) = "" Then Exit Do
+        If oList.IndexedValue(i) = "" Then Exit Do
         
         ReDim Preserve m_List(numList) As String
-        m_List(numList) = oList.IndexedValue(I)
-        I = I + 1
+        m_List(numList) = oList.IndexedValue(i)
+        i = i + 1
         numList = numList + 1
     Loop
     If numList = 0 Then
@@ -161,8 +161,8 @@ Public Sub InitConfig(o As Object, parentWidth As Long, parentHeight As Long, us
     If Len(s) Then
         sa = Split(s, "@")
         If sa(0) = "p" Or sa(0) = "P" Then
-            For I = 1 To UBound(sa)
-                s = sa(I)
+            For i = 1 To UBound(sa)
+                s = sa(i)
                 idx = InStr(2, s, "=")
                 If idx > 0 Then '有值
                     m_dicTotal(Left$(s, idx - 1)) = Mid$(s, idx + 1)
@@ -203,12 +203,12 @@ End Function
 
 '获取配置字符串
 Private Function getConfigStr() As String
-    Dim sOut As New cStrBuilder, saCfg() As String, I As Long
+    Dim sOut As New cStrBuilder, saCfg() As String, i As Long
     Const csaCfg = "relief,fg,bg,bd,wraplength,justify,state,anchor,takefocus,font"
     saCfg = Split(csaCfg, ",")
     
-    For I = 0 To UBound(saCfg)
-        If Len(m_Base(saCfg(I))) Then sOut.Append saCfg(I) & "=" & m_Base(saCfg(I))
+    For i = 0 To UBound(saCfg)
+        If Len(m_Base(saCfg(i))) Then sOut.Append saCfg(i) & "=" & m_Base(saCfg(i))
     Next
     getConfigStr = sOut.toString(", ")
     

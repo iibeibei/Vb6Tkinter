@@ -49,7 +49,7 @@ End Sub
 'useTkFonts: 是否使用tkinter命名字体代替特定字体名（兼容性更强）
 'dMethods：控件名为键，使用逗号分隔的控件事件处理函数名字符串
 Public Sub InitConfig(o As Object, parentWidth As Long, parentHeight As Long, useTkFonts As Boolean, dMethods As Dictionary)
-    Dim I As Long, oList As Object, sList As String, fontName As String, defaultFont As String
+    Dim i As Long, oList As Object, sList As String, fontName As String, defaultFont As String
     Dim s As String, sa() As String, idx As Long
     
     m_Base.SetVbWidgetInstance o
@@ -59,18 +59,18 @@ Public Sub InitConfig(o As Object, parentWidth As Long, parentHeight As Long, us
         fontName = "'TkDefaultFont'"
         defaultFont = "('TkDefaultFont',9)"
     Else
-        fontName = U(CStr(o.Properties("Font")("Name")))
+        fontName = U(GetEnglishFontName(CStr(o.Properties("Font")("Name"))))
         defaultFont = "(" & U(GetDefaultFontName()) & ",9)"
     End If
     
     '保存列表，中间使用空格隔开
-    I = 0
+    i = 0
     Set oList = o.Properties("List")
     Do While True
-        If oList.IndexedValue(I) = "" Then Exit Do
+        If oList.IndexedValue(i) = "" Then Exit Do
         
-        sList = sList & " " & oList.IndexedValue(I)
-        I = I + 1
+        sList = sList & " " & oList.IndexedValue(i)
+        i = i + 1
     Loop
     m_Base.Value = Trim(sList)
     
@@ -131,8 +131,8 @@ Public Sub InitConfig(o As Object, parentWidth As Long, parentHeight As Long, us
     If Len(s) Then
         sa = Split(s, "@")
         If sa(0) = "p" Or sa(0) = "P" Then
-            For I = 1 To UBound(sa)
-                s = sa(I)
+            For i = 1 To UBound(sa)
+                s = sa(i)
                 idx = InStr(2, s, "=")
                 If idx > 0 Then '有值
                     m_dicTotal(Left$(s, idx - 1)) = Mid$(s, idx + 1)
@@ -149,7 +149,7 @@ End Sub
 '返回值：0-没有可选值，1-有一个严格限制的可选值列表，2-除提供的可选值列表外，还可以手动输入其他值
 '输出：sa()可选值列表数组
 Public Function GetAttrValueList(sAttr As String, ByRef sa() As String) As Long
-    Dim aComps() As String, I As Long, satmp() As String, sOut As String
+    Dim aComps() As String, i As Long, satmp() As String, sOut As String
     GetAttrValueList = 1
     If sAttr = "activestyle" Then
         sa = Split("'underline','dotbox','none'", ",")
@@ -162,8 +162,8 @@ Public Function GetAttrValueList(sAttr As String, ByRef sa() As String) As Long
         aComps = GetAllComps()
         If UBound(aComps) >= 0 Then
             sOut = ""
-            For I = 1 To UBound(aComps) '0为窗体，不需要判断
-                satmp = Split(aComps(I), "|")
+            For i = 1 To UBound(aComps) '0为窗体，不需要判断
+                satmp = Split(aComps(i), "|")
                 If UBound(satmp) > 0 Then
                     If satmp(1) = "clsScrollbar" Then
                         sOut = sOut & IIf(Len(sOut), ",", "") & satmp(0) & ".set"

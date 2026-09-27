@@ -3,9 +3,9 @@ Option Explicit
 
 Public VbeInst As VBE
 
-Private Declare Function GetDC Lib "user32" (ByVal hWnd As Long) As Long
+Private Declare Function GetDC Lib "user32" (ByVal hwnd As Long) As Long
 Private Declare Function GetDeviceCaps Lib "gdi32" (ByVal hdc As Long, ByVal nIndex As Long) As Long
-Private Declare Function ReleaseDC Lib "user32" (ByVal hWnd As Long, ByVal hdc As Long) As Long
+Private Declare Function ReleaseDC Lib "user32" (ByVal hwnd As Long, ByVal hdc As Long) As Long
 Private Declare Function GetTextExtentPoint32 Lib "gdi32" Alias "GetTextExtentPoint32A" (ByVal hdc As Long, ByVal lpsz As String, ByVal cbString As Long, lpSize As Size) As Long
 Private Declare Function lstrlen Lib "kernel32" Alias "lstrlenA" (ByVal lpString As String) As Long
 Private Declare Function OleTranslateColor Lib "olepro32.dll" (ByVal OLE_COLOR As Long, ByVal hPalette As Long, ByRef pccolorref As Long) As Long
@@ -36,39 +36,15 @@ Public Const SYNCHRONIZE = &H100000
 Public Const KEY_READ = ((STANDARD_RIGHTS_READ Or KEY_QUERY_VALUE Or KEY_ENUMERATE_SUB_KEYS Or KEY_NOTIFY) And (Not SYNCHRONIZE))
 Public Const KEY_WOW64_64KEY = &H100
 
-'这些用于获取系统默认字体
-Private Declare Function GetStockObject Lib "gdi32" (ByVal nIndex As Long) As Long
-Private Declare Function GetObject Lib "gdi32" Alias "GetObjectA" (ByVal hObject As Long, ByVal nCount As Long, lpObject As Any) As Long
-Private Declare Function DeleteObject Lib "gdi32" (ByVal hObject As Long) As Long
-Private Const DEFAULT_GUI_FONT = 17
-Private Const LF_FACESIZE = 32
-Private Type LOGFONT
-        lfHeight As Long
-        lfWidth As Long
-        lfEscapement As Long
-        lfOrientation As Long
-        lfWeight As Long
-        lfItalic As Byte
-        lfUnderline As Byte
-        lfStrikeOut As Byte
-        lfCharSet As Byte
-        lfOutPrecision As Byte
-        lfClipPrecision As Byte
-        lfQuality As Byte
-        lfPitchAndFamily As Byte
-        lfFaceName(1 To LF_FACESIZE) As Byte
-End Type
-
 Public Const WTOP = "top" '设置tkinter中顶层窗体名字
 
-Public g_DefaultFontName As String '暂存系统默认字体名，避免每次查询
 Public g_Comps() As Object '当前窗体的控件列表，第一项为窗体对象实例
 
 Public g_bUnicodePrefixU As Boolean '是否在UNICODE字符串前加前缀u
 Public g_PythonExe As String '用于GUI预览，保存python.exe全路径
 Public g_AppVerString As String
 
-Public Declare Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" (ByVal hWnd As Long, ByVal lpOperation As String, ByVal lpFile As String, ByVal lpParameters As String, ByVal lpDirectory As String, ByVal nShowCmd As Long) As Long
+Public Declare Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" (ByVal hwnd As Long, ByVal lpOperation As String, ByVal lpFile As String, ByVal lpParameters As String, ByVal lpDirectory As String, ByVal nShowCmd As Long) As Long
 Public Const OFFICIAL_SITE As String = "https://github.com/cdhigh/Vb6Tkinter"
 Public Const OFFICIAL_RELEASES As String = "https://github.com/cdhigh/Vb6Tkinter/releases"
 Public Const OFFICIAL_UPDATE_INFO As String = "https://api.github.com/repos/cdhigh/Vb6Tkinter/releases"
@@ -281,26 +257,6 @@ Public Function GetAllInstalledPython() As String()
     Next
     
     GetAllInstalledPython = Split(sAllPath, ",")
-End Function
-
-'获取系统默认字体名
-Public Function GetDefaultFontName() As String
-    Dim hFont As Long, lfont As LOGFONT
-    
-    If Len(g_DefaultFontName) Then
-        GetDefaultFontName = g_DefaultFontName
-    Else
-        hFont = GetStockObject(DEFAULT_GUI_FONT)
-        If hFont <> 0 Then
-            GetObject hFont, Len(lfont), lfont
-            DeleteObject hFont
-            GetDefaultFontName = StrConv(lfont.lfFaceName, vbUnicode)
-            If InStr(1, GetDefaultFontName, Chr(0)) > 0 Then
-                GetDefaultFontName = Left$(GetDefaultFontName, InStr(1, GetDefaultFontName, Chr(0)) - 1)
-            End If
-            g_DefaultFontName = GetDefaultFontName  '暂存，下一次就不用API查询了
-        End If
-    End If
 End Function
 
 '获取当前窗体的所有控件列表，返回字符为使用|分割的名字和类型名

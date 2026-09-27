@@ -49,6 +49,7 @@ Form=frmNewVer.frm
 Form=frmAbout.frm
 Module=utf8file; utf8file.bas
 ResFile32="XP.RES"
+Module=FontResolver; FontResolver.bas
 IconForm="FrmMain"
 Startup="(None)"
 HelpFile=""

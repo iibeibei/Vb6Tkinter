@@ -49,7 +49,7 @@ End Sub
 'useTkFonts: 是否使用tkinter命名字体代替特定字体名（兼容性更强）
 'dMethods：控件名为键，使用逗号分隔的控件事件处理函数名字符串
 Public Sub InitConfig(o As Object, parentWidth As Long, parentHeight As Long, useTkFonts As Boolean, dMethods As Dictionary)
-    Dim I As Long, oList As Object, sList As String
+    Dim i As Long, oList As Object, sList As String
     Dim s As String, sa() As String, idx As Long, fontName As String, defaultFont As String
     
     m_Base.SetVbWidgetInstance o
@@ -59,18 +59,18 @@ Public Sub InitConfig(o As Object, parentWidth As Long, parentHeight As Long, us
         fontName = "'TkDefaultFont'"
         defaultFont = "('TkDefaultFont',9)"
     Else
-        fontName = U(CStr(o.Properties("Font")("Name")))
+        fontName = U(GetEnglishFontName(CStr(o.Properties("Font")("Name"))))
         defaultFont = "(" & U(GetDefaultFontName()) & ",9)"
     End If
     
     '保存下拉选项值
     Set oList = o.Properties("List")
     sList = "["
-    I = IIf(o.Properties("Style") = 2, 1, 0)                                    ' 2-Dropdown List时第一项IndexedValue为控件名，所以从第二项开始
+    i = IIf(o.Properties("Style") = 2, 1, 0)                                    ' 2-Dropdown List时第一项IndexedValue为控件名，所以从第二项开始
     Do While True
-        If oList.IndexedValue(I) = "" Then Exit Do
-        sList = sList & U(oList.IndexedValue(I)) & ", "
-        I = I + 1
+        If oList.IndexedValue(i) = "" Then Exit Do
+        sList = sList & U(oList.IndexedValue(i)) & ", "
+        i = i + 1
     Loop
     m_List = sList & IIf(sList = "[", "'',]", "]")
     
@@ -130,8 +130,8 @@ Public Sub InitConfig(o As Object, parentWidth As Long, parentHeight As Long, us
     If Len(s) Then
         sa = Split(s, "@")
         If sa(0) = "p" Or sa(0) = "P" Then
-            For I = 1 To UBound(sa)
-                s = sa(I)
+            For i = 1 To UBound(sa)
+                s = sa(i)
                 idx = InStr(2, s, "=")
                 If idx > 0 Then '有值
                     m_dicTotal(Left$(s, idx - 1)) = Mid$(s, idx + 1)
